@@ -52,6 +52,8 @@ using namespace  std;
 extern QMap<int,QColor> ProcessColors;
 extern QVector<QColor> Palette;
 extern vector <vector<string> >segmentTableData ;
+extern vector <vector<string> >holeTableData;
+
 extern vector <vector<float>> result;
 extern vector <vector<QString>> segments;
 extern int numOfUsedColors;
@@ -85,7 +87,7 @@ private:
     QLineEdit * memorySize;
     QLineEdit * holesNumber;
     QTableWidget * holeTable;
-    QPushButton * start;
+    QPushButton * drawHoles;
     QPushButton * removeLastProcess;
     QPushButton * reset;
 
@@ -93,7 +95,7 @@ private:
     QPushButton * addProcess;
     QLabel * processSelectLabel;
     QComboBox * processSelect;
-    QPushButton* deallocatePID;
+    QPushButton* deallocateProcess;
 
     QTableWidget * segmentTable;
     QPushButton * addSegment;
@@ -115,14 +117,17 @@ private:
     void draw();
 private slots:
     void on_holesNumber_Changed(const QString &text);
+    void on_memorySize_Changed(const QString &text);
     void on_addProcess_clicked();
     void on_addSegment_clicked();
     void on_removeLastProcess_clicked();
     void on_myTable_itemChanged(QTableWidgetItem *item);
-    void on_start_clicked();
+    void on_drawHoles_clicked();
     void on_reset_clicked();
+    void submitTables();
     void on_algorithm_change(int);
     void on_processSelect_change(int);
+    void on_deallocateProcess_clicked();
 
 };
 

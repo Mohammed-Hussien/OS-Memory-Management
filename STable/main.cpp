@@ -5,10 +5,15 @@
 #include "renderarea.h"
 #include "mainwindow.h"
 #include <set>
+
 vector <vector<QString>> segments(9);
+
 QMap<int,QColor> ProcessColors;
+
 QVector<QColor> Palette;
+
 vector <vector<string> >segmentTableData ;
+vector <vector<string> >holeTableData;
 vector <vector<float>> result;
 set <QString> PIDS;
 int numOfUsedColors=0;

@@ -13,13 +13,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
    secondLayout = new QVBoxLayout;
    thirdLayout = new QVBoxLayout;
 
-
    algorithm = new QComboBox(this);
    memorySize=new QLineEdit;
    holesNumber = new QLineEdit;
    holeTable = new QTableWidget(this);
    holeTable ->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-   start = new QPushButton;
+   drawHoles = new QPushButton;
    removeLastProcess = new QPushButton;
    reset = new QPushButton;
 
@@ -29,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
    addProcess = new QPushButton;
    processSelectLabel = new QLabel();
    processSelect = new QComboBox(this);
-   deallocatePID = new QPushButton;
+   deallocateProcess = new QPushButton;
 
 
    segmentTable = new QTableWidget(this);
@@ -48,8 +47,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
    algorithm->addItem("Best Fit",1);
    addProcess->setText("Add PID");
    processSelectLabel->setText("Select a Process to Deallocate");
-   start->setText("Start");
-   deallocatePID->setText("Deallocate Process");
+   drawHoles->setText("Draw Holes");
+   deallocateProcess->setText("Deallocate Process");
    removeLastProcess->setText("Remove Last Process");
    reset->setText("Reset");
    addSegment->setText("Add New Segment");
@@ -65,13 +64,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
    draw();
    connect(addProcess,SIGNAL(pressed()),this,SLOT(on_addProcess_clicked()));
    connect(holesNumber,SIGNAL(textChanged(const QString)),this,SLOT(on_holesNumber_Changed(QString)));
+   connect(memorySize,SIGNAL(textChanged(const QString)),this,SLOT(on_memorySize_Changed(QString)));
    connect(reset,SIGNAL(pressed()),this,SLOT(on_reset_clicked()));
    connect(removeLastProcess,SIGNAL(pressed()),this,SLOT(on_removeLastProcess_clicked()));
    connect(addSegment,SIGNAL(pressed()),this,SLOT(on_addSegment_clicked()));
    connect(myTable,SIGNAL(itemChanged(QTableWidgetItem *)),this,SLOT(on_myTable_itemChanged(QTableWidgetItem *)));
-   connect(start,SIGNAL(pressed()),this,SLOT(on_start_clicked()));
+   connect(drawHoles,SIGNAL(pressed()),this,SLOT(on_drawHoles_clicked()));
    connect(algorithm,SIGNAL(activated(int)),this,SLOT(on_algorithm_change(int)));
    connect(processSelect,SIGNAL(activated(int)),this,SLOT(on_processSelect_change(int)));
+   connect(deallocateProcess,SIGNAL(pressed()),this,SLOT(on_deallocateProcess_clicked()));
    this->setStyleSheet("QPushButton{height:40px;font-size:20px;background:#ff6363;"
                        "border-radius:15px;"
                        "}QPushButton:hover{}"
@@ -112,7 +113,7 @@ void MainWindow::draw(){
 
 
     firstLayout->addWidget(holeTable);
-    firstLayout->addWidget(start);
+    firstLayout->addWidget(drawHoles);
 
     firstLayout->addWidget(reset);
     mainLayout->addLayout(secondLayout);
@@ -122,7 +123,7 @@ void MainWindow::draw(){
     secondLayout->addWidget(removeLastProcess);
     secondLayout->addWidget(processSelectLabel);
     secondLayout->addWidget(processSelect);
-    secondLayout->addWidget(deallocatePID);
+    secondLayout->addWidget(deallocateProcess);
 
 
 
@@ -134,7 +135,7 @@ void MainWindow::draw(){
     mainLayout->addWidget(renderArea);
 
     setWindowIcon(QIcon(":images/myappico.ico"));
-    setWindowTitle("Scheduler");
+    setWindowTitle("Memory Manager");
     resize(QDesktopWidget().availableGeometry(this).size() * 0.75);
 
 }
@@ -162,10 +163,25 @@ void MainWindow::on_addProcess_clicked(){
 }
 
 void MainWindow::on_removeLastProcess_clicked(){
-    if(!segmentTableData.empty()){
+
+    if(myTable->rowCount()>0){
+        QString lastProcess=myTable->item(myTable->rowCount()-1,0)->text();
+        for (int i=0;i<segmentTableData.size();i++) {
+            if(segmentTableData[i][0]==lastProcess.toStdString()){
+                //void QTableWidgetItem::setBackground(const QBrush &brush)
+                //segmentTable->currentItem()->setBackgroundColor(Qt::black);
+                segmentTable->item(i,0)->setBackgroundColor(Qt::black);
+                segmentTable->item(i,1)->setBackgroundColor(Qt::black);
+                segmentTable->item(i,2)->setBackgroundColor(Qt::black);
+            }
+
+        }
+        PIDS.erase(PIDS.find(lastProcess));
+        processSelect->removeItem(processSelect->findText(lastProcess));
+        deallocateProcess->setText("Deallocate Process " +processSelect->currentText());
         myTable->setRowCount(myTable->rowCount()-1);
-        segmentTableData.resize(segmentTableData.size()-1);
     }
+
 }
 
 void MainWindow::on_myTable_itemChanged(QTableWidgetItem *item)
@@ -186,8 +202,8 @@ void MainWindow::on_myTable_itemChanged(QTableWidgetItem *item)
         else if(temp!="edit PID"){
             PIDS.insert(temp);
             processSelect->addItem(temp);
-            if(deallocatePID->text()=="Deallocate Process"){
-                deallocatePID->setText("Deallocate Process "+temp);
+            if(deallocateProcess->text()=="Deallocate Process"){
+                deallocateProcess->setText("Deallocate Process "+temp);
             }
         }
 
@@ -207,31 +223,76 @@ void MainWindow::on_myTable_itemChanged(QTableWidgetItem *item)
     //data[myTable->currentRow()][myTable->currentColumn()] =  temp.toStdString().c_str();
 }
 
-void MainWindow::on_start_clicked(){
-    QVariant selected = algorithm->itemData(algorithm->currentIndex());
-    result.clear();
-    if(selected ==0){
+void MainWindow::submitTables(){
+    segmentTableData.clear();
+    holeTableData.clear();
+    holeTableData.resize(holeTable->rowCount());
+    segmentTableData.resize(segmentTable->rowCount());
+
+
+
+    for(int i=0;i<holeTableData.size();i++){
+        holeTableData[i].resize(3);
+        holeTableData[i][0] = holeTable->item(i,0)->text().toStdString();
+        holeTableData[i][1] = holeTable->item(i,1)->text().toStdString();
+        holeTableData[i][2] = holeTable->item(i,2)->text().toStdString();
 
     }
-    else if(selected ==1){
 
+    for(int i=0;i<segmentTableData.size();i++){
+        segmentTableData[i].resize(3);
+        segmentTableData[i][0] = segmentTable->item(i,0)->text().toStdString();
+        segmentTableData[i][1] = segmentTable->item(i,1)->text().toStdString();
+        segmentTableData[i][2] = segmentTable->item(i,2)->text().toStdString();
     }
-    else if(selected ==2){
 
-    }
-    else if(selected ==3){
+}
 
-    }
-    else if(selected == 4){
 
-    }
-    else if(selected ==5){
 
+void MainWindow::on_memorySize_Changed(const QString &text){
+
+    QString temp = text;
+    int pos =0;
+    QIntValidator v(1,100000000000);
+
+    if(v.validate(temp,pos) == QValidator::Invalid || v.validate(temp,pos) == QValidator::Intermediate){
+        QMessageBox messageBox;
+        messageBox.critical(0,"Error","Please enter a valid Integer Number");
+        memorySize->setText("1");
     }
-    //colorGenerator();
-    for(unsigned int i=0;i<result.size();i++){
-        getAndAssignColor(result[i][0]);
-    }
+    //intializeMemory(text.toStdString());
+}
+
+void MainWindow::on_drawHoles_clicked(){
+
+      //segments =setHoles(holeTableData);
+        submitTables();
+
+//    QVariant selected = algorithm->itemData(algorithm->currentIndex());
+//    result.clear();
+//    if(selected ==0){
+
+//    }
+//    else if(selected ==1){
+
+//    }
+//    else if(selected ==2){
+
+//    }
+//    else if(selected ==3){
+
+//    }
+//    else if(selected == 4){
+
+//    }
+//    else if(selected ==5){
+
+//    }
+//    //colorGenerator();
+//    for(unsigned int i=0;i<result.size();i++){
+//        getAndAssignColor(result[i][0]);
+//    }
 }
 
 void MainWindow::on_algorithm_change(int index){
@@ -245,8 +306,29 @@ void MainWindow::on_algorithm_change(int index){
 }
 
 void MainWindow::on_processSelect_change(int index){
-    deallocatePID->setText(QString("Deallocate Process ")+ processSelect->itemText(index));
+    deallocateProcess->setText(QString("Deallocate Process ")+ processSelect->currentText());
 }
+
+void MainWindow::on_deallocateProcess_clicked(){
+
+
+
+    for (int i=0;i<segmentTable->rowCount();i++) {
+        if(segmentTableData[i][0]==processSelect->currentText().toStdString()){
+            //void QTableWidgetItem::setBackground(const QBrush &brush)
+            //segmentTable->currentItem()->setBackgroundColor(Qt::black);
+            segmentTable->item(i,0)->setBackgroundColor(Qt::black);
+            segmentTable->item(i,1)->setBackgroundColor(Qt::black);
+            segmentTable->item(i,2)->setBackgroundColor(Qt::black);
+        }
+    }
+    PIDS.erase(PIDS.find(processSelect->currentText()));
+    myTable->removeRow(myTable->findItems(processSelect->currentText(),Qt::MatchExactly)[0]->row());
+    processSelect->removeItem(processSelect->currentIndex());
+    deallocateProcess->setText("Deallocate Process " +processSelect->currentText());
+    //segments = deleteProcess(processSelect->currentText());
+}
+
 
 void MainWindow::on_addSegment_clicked(){
     segmentTable->setRowCount(segmentTable->rowCount()+1);

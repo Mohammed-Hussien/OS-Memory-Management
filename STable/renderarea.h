@@ -63,6 +63,8 @@ using namespace std;
 extern QMap<int,QColor> ProcessColors;
 extern QVector<QColor> Palette;
 extern vector <vector<string> >segmentTableData ;
+extern vector <vector<string> >holeTableData;
+
 extern vector <vector<QString>> segments;
 extern vector <vector<float>> result;
 extern int numOfUsedColors;
