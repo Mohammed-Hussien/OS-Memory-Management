@@ -72,28 +72,32 @@ private:
     QHBoxLayout *mainLayout;
     QVBoxLayout * firstLayout;
     QVBoxLayout * secondLayout;
-    QComboBox * processSelect;
-    QPushButton* deallocatePID;
+    QVBoxLayout * thirdLayout;
+
 
     QHBoxLayout * editFieldsLayout;
 
 
-    QTableWidget * myTable;
-    QTableWidget * holeTable;
-    QTableWidget * segmentTable;
+
 
 
     QComboBox * algorithm;
-    QLabel * Quantum;
-    QLineEdit * quantumValue;
+    QLineEdit * memorySize;
     QLineEdit * holesNumber;
-
-    QLabel * processSelectLabel;
-
-    QPushButton * addPID;
+    QTableWidget * holeTable;
     QPushButton * start;
-    QPushButton * remove;
+    QPushButton * removeLastProcess;
     QPushButton * reset;
+
+    QTableWidget * myTable;
+    QPushButton * addProcess;
+    QLabel * processSelectLabel;
+    QComboBox * processSelect;
+    QPushButton* deallocatePID;
+
+    QTableWidget * segmentTable;
+    QPushButton * addSegment;
+
 
 
 //===========================================
@@ -111,8 +115,9 @@ private:
     void draw();
 private slots:
     void on_holesNumber_Changed(const QString &text);
-    void on_add_clicked();
-    void on_remove_clicked();
+    void on_addProcess_clicked();
+    void on_addSegment_clicked();
+    void on_removeLastProcess_clicked();
     void on_myTable_itemChanged(QTableWidgetItem *item);
     void on_start_clicked();
     void on_reset_clicked();

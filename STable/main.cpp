@@ -5,7 +5,7 @@
 #include "renderarea.h"
 #include "mainwindow.h"
 #include <set>
-vector <vector<QString>> segments(8);
+vector <vector<QString>> segments(9);
 QMap<int,QColor> ProcessColors;
 QVector<QColor> Palette;
 vector <vector<string> >segmentTableData ;

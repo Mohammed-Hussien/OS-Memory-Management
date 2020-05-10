@@ -127,30 +127,41 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
     QPainter painter(this);
     painter.setPen(QPen(Qt::blue, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
     painter.setBrush(QBrush(Qt::green, Qt::BDiagPattern	));
+    QFont font = painter.font();
+    font.setPixelSize(22);
+    painter.setFont(font);
     //painter.drawRect(rect);
 
     segments[0]={"17","1","0","300"};
-    segments[1]={"16","2","300","500"};
-    segments[2]={"hole","3","500","1000"};
-    segments[3]={"15","4","1000","1400"};
-    segments[4]={"14","4","1400","1600"};
-    segments[5]={"hole","4","1600","1700"};
-    segments[6]={"18","4","1700","1800"};
-    segments[7]={"19","4","1800","1950"};
+    segments[1]={"16","2","300","200"};
+    segments[2]={"hole","3","500","500"};
+    segments[3]={"15","4","1000","400"};
+    segments[4]={"16","4","1400","200"};
+    segments[5]={"hole","4","1600","100"};
+    segments[6]={"17","4","1700","100"};
+    segments[7]={"17","4","1800","150"};
+    segments[8]={"hole","2","1950","50"};
 
     colorGenerator(10);
 
 int memorySize = 2000;
 for(int i=0;i<segments.size();i++){
+
     if(segments[i][0]=="hole"){
         painter.setPen(QPen(Qt::blue, 3, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
         painter.setBrush(QBrush(Qt::black, Qt::BDiagPattern	));
+        painter.drawRect(QRect(0, height()*  segments[i][2].toInt() /memorySize,width(),height()*  (segments[i][3].toInt())/memorySize));
+        painter.drawText(QRect(0, height()*  segments[i][2].toInt() /memorySize,width(),height()*  (segments[i][3].toInt())/memorySize),Qt::AlignCenter,"Hole");
     }
     else{
        painter.setPen(QPen(Qt::blue, 3, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
        painter.setBrush(QBrush(getAndAssignColor(segments[i][0].toInt()), Qt::SolidPattern));
+       painter.drawRect(QRect(0, height()*  segments[i][2].toInt() /memorySize,width(),height()*  (segments[i][3].toInt())/memorySize));
+       painter.drawText(QRect(0, height()*  segments[i][2].toInt() /memorySize,width(),height()*  (segments[i][3].toInt())/memorySize),Qt::AlignCenter,"Process:"+segments[i][0]+" Segment:"+segments[i][1]);
     }
-     painter.drawRect(QRect(0, height()*  segments[i][2].toInt() /memorySize,width(),height()*  (segments[i][3].toInt()-segments[i][2].toInt())/memorySize));
+    painter.drawText(10,height()*segments[i][2].toInt()/memorySize + 21,segments[i][2]);
+    //painter.drawText(20,segments[i][2].toInt()+segments[i][3].toInt()-50,QString(segments[i][2].toInt()+segments[i][3].toInt()));
+
 }
 
 

@@ -9,51 +9,50 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
    mainWidget = new QWidget;
    mainLayout = new QHBoxLayout;
    firstLayout = new QVBoxLayout;
-   secondLayout = new QVBoxLayout;
    editFieldsLayout = new QHBoxLayout;
+   secondLayout = new QVBoxLayout;
+   thirdLayout = new QVBoxLayout;
+
 
    algorithm = new QComboBox(this);
-
-
-
-
+   memorySize=new QLineEdit;
+   holesNumber = new QLineEdit;
    holeTable = new QTableWidget(this);
    holeTable ->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+   start = new QPushButton;
+   removeLastProcess = new QPushButton;
+   reset = new QPushButton;
+
 
    myTable = new QTableWidget(this);
    myTable ->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-   addPID = new QPushButton;
+   addProcess = new QPushButton;
    processSelectLabel = new QLabel();
    processSelect = new QComboBox(this);
    deallocatePID = new QPushButton;
 
+
    segmentTable = new QTableWidget(this);
    segmentTable ->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-   start = new QPushButton;
-   remove = new QPushButton;
-   reset = new QPushButton;
-   Quantum = new QLabel;
-   quantumValue=new QLineEdit;
-   holesNumber = new QLineEdit;
+   addSegment= new QPushButton;
 
 
 
-   quantumValue->setPlaceholderText("Enter Memory Size");
+
+
+
+
+   memorySize->setPlaceholderText("Enter Memory Size");
    holesNumber->setPlaceholderText("Enter Number of Holes");
-
-
    algorithm->addItem("First Fit",0);
    algorithm->addItem("Best Fit",1);
-   addPID->setText("Add PID");
+   addProcess->setText("Add PID");
    processSelectLabel->setText("Select a Process to Deallocate");
    start->setText("Start");
    deallocatePID->setText("Deallocate Process");
-   remove->setText("Remove Last PID");
+   removeLastProcess->setText("Remove Last Process");
    reset->setText("Reset");
-   Quantum->setText("Enter Memory Size");
-
+   addSegment->setText("Add New Segment");
    //====================================
 
 
@@ -64,10 +63,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
    //=====================================
 
    draw();
-   connect(addPID,SIGNAL(pressed()),this,SLOT(on_add_clicked()));
+   connect(addProcess,SIGNAL(pressed()),this,SLOT(on_addProcess_clicked()));
    connect(holesNumber,SIGNAL(textChanged(const QString)),this,SLOT(on_holesNumber_Changed(QString)));
    connect(reset,SIGNAL(pressed()),this,SLOT(on_reset_clicked()));
-   connect(remove,SIGNAL(pressed()),this,SLOT(on_remove_clicked()));
+   connect(removeLastProcess,SIGNAL(pressed()),this,SLOT(on_removeLastProcess_clicked()));
+   connect(addSegment,SIGNAL(pressed()),this,SLOT(on_addSegment_clicked()));
    connect(myTable,SIGNAL(itemChanged(QTableWidgetItem *)),this,SLOT(on_myTable_itemChanged(QTableWidgetItem *)));
    connect(start,SIGNAL(pressed()),this,SLOT(on_start_clicked()));
    connect(algorithm,SIGNAL(activated(int)),this,SLOT(on_algorithm_change(int)));
@@ -107,32 +107,35 @@ void MainWindow::draw(){
     firstLayout->addWidget(algorithm);
     firstLayout->addLayout(editFieldsLayout);
 
-
-    editFieldsLayout->addWidget(quantumValue);
+    editFieldsLayout->addWidget(memorySize);
     editFieldsLayout->addWidget(holesNumber);
 
 
     firstLayout->addWidget(holeTable);
     firstLayout->addWidget(start);
 
-    firstLayout->addWidget(remove);
     firstLayout->addWidget(reset);
     mainLayout->addLayout(secondLayout);
 
     secondLayout->addWidget(myTable);
-    secondLayout->addWidget(addPID);
+    secondLayout->addWidget(addProcess);
+    secondLayout->addWidget(removeLastProcess);
     secondLayout->addWidget(processSelectLabel);
     secondLayout->addWidget(processSelect);
     secondLayout->addWidget(deallocatePID);
 
-    mainLayout->addWidget(segmentTable);
+
+
+    mainLayout->addLayout(thirdLayout);
+    thirdLayout->addWidget(segmentTable);
+    thirdLayout->addWidget(addSegment);
     //segmentTable->verticalScrollBar()->setDisabled(true);
 
     mainLayout->addWidget(renderArea);
 
     setWindowIcon(QIcon(":images/myappico.ico"));
     setWindowTitle("Scheduler");
-    resize(QDesktopWidget().availableGeometry(this).size() * 0.6);
+    resize(QDesktopWidget().availableGeometry(this).size() * 0.75);
 
 }
 
@@ -150,7 +153,7 @@ void MainWindow::on_holesNumber_Changed(const QString &text){
 }
 
 
-void MainWindow::on_add_clicked(){
+void MainWindow::on_addProcess_clicked(){
 
 
     myTable->setRowCount(myTable->rowCount()+1);
@@ -158,7 +161,7 @@ void MainWindow::on_add_clicked(){
 
 }
 
-void MainWindow::on_remove_clicked(){
+void MainWindow::on_removeLastProcess_clicked(){
     if(!segmentTableData.empty()){
         myTable->setRowCount(myTable->rowCount()-1);
         segmentTableData.resize(segmentTableData.size()-1);
@@ -244,6 +247,12 @@ void MainWindow::on_algorithm_change(int index){
 void MainWindow::on_processSelect_change(int index){
     deallocatePID->setText(QString("Deallocate Process ")+ processSelect->itemText(index));
 }
+
+void MainWindow::on_addSegment_clicked(){
+    segmentTable->setRowCount(segmentTable->rowCount()+1);
+}
+
+
 
 
 void MainWindow::on_reset_clicked(){
