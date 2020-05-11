@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 
-extern vector <vector<QString>> segments;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
 
@@ -35,8 +34,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
    segmentTable = new QTableWidget(this);
    segmentTable ->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
    addToMemory= new QPushButton;
-
-
+   processViewSelectLabel = new QLabel();
+   processViewSelect = new QComboBox(this);
+   processViewButton = new QPushButton();
 
 
    memorySize->setPlaceholderText("Enter Memory Size");
@@ -52,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
    removeLastProcess->setText("Remove Last Process");
    reset->setText("Reset");
    addToMemory->setText("Add To Memory");
+   processViewSelectLabel->setText("Select a Process to show its Table");
+   processViewButton->setText("View Process");
    //====================================
 
 
@@ -72,7 +74,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
    connect(drawHoles,SIGNAL(pressed()),this,SLOT(on_drawHoles_clicked()));
    connect(algorithm,SIGNAL(activated(int)),this,SLOT(on_algorithm_change(int)));
    connect(processSelect,SIGNAL(activated(int)),this,SLOT(on_processSelect_change(int)));
+
    connect(deallocateProcess,SIGNAL(pressed()),this,SLOT(on_deallocateProcess_clicked()));
+   connect(processViewSelect,SIGNAL(activated(int)),this,SLOT(on_processViewSelect_change(int)));
+   connect(processViewButton,SIGNAL(pressed()),this,SLOT(on_processViewButton_clicked()));
+
    this->setStyleSheet("QPushButton{height:40px;font-size:20px;background:#ff6363;"
                        "border-radius:15px;"
                        "}QPushButton:hover{}"
@@ -135,13 +141,18 @@ void MainWindow::draw(){
     mainLayout->addLayout(thirdLayout);
     thirdLayout->addWidget(segmentTable);
     thirdLayout->addWidget(addToMemory);
+    thirdLayout->addWidget(processViewSelectLabel);
+    thirdLayout->addWidget(processViewSelect);
+    thirdLayout->addWidget(processViewButton);
+
+
     //segmentTable->verticalScrollBar()->setDisabled(true);
 
     mainLayout->addWidget(renderArea);
-
     setWindowIcon(QIcon(":images/myappico.ico"));
     setWindowTitle("Memory Manager");
     resize(QDesktopWidget().availableGeometry(this).size() * 0.75);
+    colorGenerator(10);
 
 }
 
@@ -158,7 +169,6 @@ void MainWindow::on_holesNumber_Changed(const QString &text){
 
 
 }
-
 
 void MainWindow::on_addProcess_clicked(){
     QString ID  =processID->text();
@@ -315,6 +325,10 @@ void MainWindow::on_processSelect_change(int index){
     deallocateProcess->setText(QString("Deallocate Process ")+ processSelect->currentText());
 }
 
+void MainWindow::on_processViewSelect_change(int index){
+    processViewButton->setText(QString("View Process ")+ processViewSelect->currentText());
+}
+
 void MainWindow::on_deallocateProcess_clicked(){
 
 
@@ -330,6 +344,19 @@ void MainWindow::on_deallocateProcess_clicked(){
     PIDS.erase(PIDS.find(processSelect->currentText()));
     myTable->removeRow(myTable->findItems(processSelect->currentText(),Qt::MatchExactly)[0]->row());
     segments =strToQStr(deleteProcess(processSelect->currentText().toStdString()));
+
+
+    if(algorithm->currentIndex()==0){
+            vector <vector<string>> temp = FirstFit(memory,notSizeProcess,segmentTableData );
+            segments = strToQStr(temp);
+            renderArea->update();
+        }
+    if(algorithm->currentIndex()==1){
+        vector <vector<string>> temp = BestFit(memory, notSizeProcess,segmentTableData  );
+        segments = strToQStr(temp);
+        renderArea->update();
+    }
+
     processSelect->removeItem(processSelect->currentIndex());
     deallocateProcess->setText("Deallocate Process " +processSelect->currentText());
     qDebug() << processSelect->currentText();
@@ -337,27 +364,35 @@ void MainWindow::on_deallocateProcess_clicked(){
     //segments = deleteProcess(processSelect->currentText());
 }
 
-
 void MainWindow::on_addToMemory_clicked(){
     submitTables();
     processID->setDisabled(false);
     processSegmentsNumber->setDisabled(false);
 
     if(algorithm->currentIndex()==0){
-        vector <vector<string>> temp = FirstFit(memory,segmentTableData);
+        vector <vector<string>> temp = FirstFit(memory,segmentTableData ,notSizeProcess);
         segments = strToQStr(temp);
         renderArea->update();
     }
     if(algorithm->currentIndex()==1){
-        vector <vector<string>> temp = BestFit(memory,segmentTableData);
+        vector <vector<string>> temp = BestFit(memory,segmentTableData , notSizeProcess );
         segments = strToQStr(temp);
         renderArea->update();
     }
+    processViewSelect->addItem(segmentTable->item(0,0)->text());
+    if(processViewButton->text()=="View Process"){
+        processViewButton->setText("View Process "+segmentTable->item(0,0)->text());
+    }
     segmentTableData.clear();
     segmentTable->setRowCount(0);
-
 }
 
+void MainWindow::on_processViewButton_clicked(){
+
+    results=showProcess(QStrToStr(segments),processViewSelect->currentText().toStdString());
+    myDialog = new table(this);
+    myDialog->exec();
+}
 
 void MainWindow::on_reset_clicked(){
 
@@ -403,3 +438,12 @@ vector<vector<QString>> strToQStr(vector<vector<string>> vec){
     return result;
 }
 
+vector<vector<string>> QStrToStr(vector<vector<QString>> vec){
+    vector<vector<string>> result(vec.size());
+    for(int i=0;i<vec.size();i++){
+        for(int j=0;j<vec[i].size();j++){
+            result[i].push_back((vec[i][j]).toStdString());
+        }
+    }
+    return result;
+}

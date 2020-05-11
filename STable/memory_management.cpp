@@ -70,7 +70,7 @@ std::vector<std::vector<std::string>> deleteProcess(std::string name)
 
 }
 
-vector<vector<string>> BestFit(vector<vector<string>>& memory,vector<vector<string>>& segment_table)
+vector<vector<string>> BestFit(vector<vector<string>>& memory,vector<vector<string>>& segment_table ,vector<vector<string>>&notSizeProcess)
 {
     for (int counter = 0;counter < segment_table.size();counter++)
     {
@@ -98,6 +98,14 @@ vector<vector<string>> BestFit(vector<vector<string>>& memory,vector<vector<stri
         if (holes_ranking.empty())
         {
             notSize = 0;
+            //--------------modifying ----------------
+            notSizeProcess.resize(segment_table.size());
+                    for(int i=0;i<segment_table.size();i++){
+                        notSizeProcess[i].push_back(segment_table[i][0]);
+                        notSizeProcess[i].push_back(segment_table[i][1]);
+                        notSizeProcess[i].push_back(segment_table[i][2]);
+                    }
+            //-------------------------
             return deleteProcess(process_name);
         }
         sort(holes_ranking.begin(), holes_ranking.end());
@@ -111,14 +119,14 @@ vector<vector<string>> BestFit(vector<vector<string>>& memory,vector<vector<stri
         //*******************************
     }
     segment_table.clear();
-    
+
    return painting();
-   
+
 }
 
-vector<vector<string>> FirstFit(vector<vector<string>>& memory,vector<vector<string>>& SegmentTeble) {
+vector<vector<string>> FirstFit(vector<vector<string>>& memory,vector<vector<string>>& SegmentTeble ,vector<vector<string>>&notSizeProcess) {
 
-    vector<vector<string>>out;
+    //vector<vector<string>>out;
     int hole_size;
     int pre, next = 0;
     // static int segment_rows = 0;
@@ -128,9 +136,8 @@ vector<vector<string>> FirstFit(vector<vector<string>>& memory,vector<vector<str
         hole_size = 0;
         pre = 0;
 
-        for (int k = pre;k < memory.size();k = k + 1) {
+        for (int k = pre;k < memory.size();k++) {
 
-            //  if(memory[k][1]==memory[k+1][1]&&memory[k][1]=="Hole"){
             if (memory[k][1] == "Hole") {
                 pre++;
 
@@ -140,7 +147,7 @@ vector<vector<string>> FirstFit(vector<vector<string>>& memory,vector<vector<str
 
                     next = k;
 
-                    for (int j = (k - pre) + 1;j < k + 1;j = j + 1) {
+                    for (int j = (k - hole_size) + 1;j < k + 1;j++) {
                         memory[j][1] = SegmentTeble[i][1];
                         memory[j][0] = SegmentTeble[i][0];
 
@@ -149,20 +156,35 @@ vector<vector<string>> FirstFit(vector<vector<string>>& memory,vector<vector<str
                     notSize = 1;
                     hole_size=0;
                     break;
-
                 }
+                notSize = 0;
 
             }
-            notSize = 0;
-
-
+            else{hole_size=0;}
         }
-        if (notSize == 0) { 
+        if (notSize == 0) {
             /* not found fit size  proses not enter to memory   */
-           return deleteProcess(SegmentTeble[0][0]);
-           
-        }
 
+            //---------------   modifying  --------------
+                           notSizeProcess.resize(SegmentTeble.size());
+                           for(int i=0;i<SegmentTeble.size();i++){
+                           notSizeProcess[i].push_back(SegmentTeble[i][0]);
+                           notSizeProcess[i].push_back(SegmentTeble[i][1]);
+                           notSizeProcess[i].push_back(SegmentTeble[i][2]);
+                                }
+            //-----------------------------
+                           for (auto& m : memory)
+                           {
+                               if (m[0] == SegmentTeble[i][0])
+                               {
+                                   m[0] = " ";
+                                   m[1] = "Hole";
+                               }
+                            }
+
+           //memory= deleteProcess(SegmentTeble[i][0]); //  ---<
+           break;
+        }
     }
     // segment_rows = SegmentTeble.size();
     SegmentTeble.clear();
@@ -171,7 +193,17 @@ vector<vector<string>> FirstFit(vector<vector<string>>& memory,vector<vector<str
 
 }
 
-
-
-
-
+std::vector<std::vector<std::string>> showProcess(std::vector<std::vector<std::string>> segments,std::string process_name)
+{
+    std::vector<std::vector<std::string>> result;
+    for (auto& i : segments)
+    {
+        if (i[0] == process_name)
+        {
+            result.resize(result.size() + 1);
+            result[result.size() - 1].push_back(i[0]);
+            result[result.size() - 1].push_back(i[1]);
+        }
+    }
+    return result;
+}
