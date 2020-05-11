@@ -103,7 +103,7 @@ vector<vector<string>> BestFit(vector<vector<string>>& memory,vector<vector<stri
         sort(holes_ranking.begin(), holes_ranking.end());
         best_size = holes_ranking.at(0).at(0);
         best_index = holes_ranking.at(0).at(1);
-        for (int i = best_index;i < best_index + best_size;i++)
+        for (int i = best_index;i < best_index + seg_size;i++)
         {
             memory.at(i).at(0) = process_name;
             memory.at(i).at(1) = segment_name;
