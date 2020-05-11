@@ -19,12 +19,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    memory_management.cpp \
     renderarea.cpp
 
 
 
 HEADERS += \
     mainwindow.h \
+    memory_management.h \
     renderarea.h
 
 FORMS +=

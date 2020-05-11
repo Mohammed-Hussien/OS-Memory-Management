@@ -45,6 +45,7 @@
 #include <QtCharts/QValueAxis>
 #include <renderarea.h>
 #include <set>
+#include "memory_management.h"
 
 QT_CHARTS_USE_NAMESPACE
 using namespace  std;
@@ -53,14 +54,13 @@ extern QMap<int,QColor> ProcessColors;
 extern QVector<QColor> Palette;
 extern vector <vector<string> >segmentTableData ;
 extern vector <vector<string> >holeTableData;
-
 extern vector <vector<float>> result;
 extern vector <vector<QString>> segments;
 extern int numOfUsedColors;
 extern set <QString> PIDS;
-
-
-
+extern int notSize;
+extern vector<vector<string>>memory;
+extern int memorySizeInt;
 
 class MainWindow : public QMainWindow{
     Q_OBJECT
@@ -74,6 +74,7 @@ private:
     QHBoxLayout *mainLayout;
     QVBoxLayout * firstLayout;
     QVBoxLayout * secondLayout;
+    QHBoxLayout * processLayout;
     QVBoxLayout * thirdLayout;
 
 
@@ -91,6 +92,10 @@ private:
     QPushButton * removeLastProcess;
     QPushButton * reset;
 
+
+
+    QLineEdit * processID;
+    QLineEdit * processSegmentsNumber ;
     QTableWidget * myTable;
     QPushButton * addProcess;
     QLabel * processSelectLabel;
@@ -98,7 +103,7 @@ private:
     QPushButton* deallocateProcess;
 
     QTableWidget * segmentTable;
-    QPushButton * addSegment;
+    QPushButton * addToMemory;
 
 
 
@@ -119,7 +124,7 @@ private slots:
     void on_holesNumber_Changed(const QString &text);
     void on_memorySize_Changed(const QString &text);
     void on_addProcess_clicked();
-    void on_addSegment_clicked();
+    void on_addToMemory_clicked();
     void on_removeLastProcess_clicked();
     void on_myTable_itemChanged(QTableWidgetItem *item);
     void on_drawHoles_clicked();
@@ -133,5 +138,5 @@ private slots:
 
 void colorGenerator(int colorsNumber);
 QColor getAndAssignColor(int pid);
-
+vector<vector<QString>> strToQStr(vector<vector<string>> vec);
 #endif // MAINWINDOW_H

@@ -58,17 +58,20 @@
 #include <QWidget>
 #include <vector>
 #include <set>
+#include "memory_management.h"
 using namespace std;
 
 extern QMap<int,QColor> ProcessColors;
 extern QVector<QColor> Palette;
 extern vector <vector<string> >segmentTableData ;
 extern vector <vector<string> >holeTableData;
-
 extern vector <vector<QString>> segments;
 extern vector <vector<float>> result;
 extern int numOfUsedColors;
 extern set <QString> PIDS;
+extern int notSize;
+extern vector<vector<string>>memory;
+extern int memorySizeInt;
 
 //! [0]
 class RenderArea : public QWidget
@@ -89,6 +92,7 @@ public slots:
     void setPen(const QPen &pen);
     void setBrush(const QBrush &brush);
     void setAntialiased(bool antialiased);
+    void draw();
     void setTransformed(bool transformed);
 
 protected:

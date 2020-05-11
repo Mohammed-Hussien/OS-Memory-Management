@@ -62,7 +62,6 @@ RenderArea::RenderArea(QWidget *parent)
     shape = Rect;
     antialiased = false;
     transformed = false;
-
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
 }
@@ -123,7 +122,6 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
 
     QRect rect(0, 0, width(), height()/4);
 
-
     QPainter painter(this);
     painter.setPen(QPen(Qt::blue, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
     painter.setBrush(QBrush(Qt::green, Qt::BDiagPattern	));
@@ -132,34 +130,30 @@ void RenderArea::paintEvent(QPaintEvent * /* event */)
     painter.setFont(font);
     //painter.drawRect(rect);
 
-    segments[0]={"17","1","0","300"};
-    segments[1]={"16","2","300","200"};
-    segments[2]={"hole","3","500","500"};
-    segments[3]={"15","4","1000","400"};
-    segments[4]={"16","4","1400","200"};
-    segments[5]={"hole","4","1600","100"};
-    segments[6]={"17","4","1700","100"};
-    segments[7]={"17","4","1800","150"};
-    segments[8]={"hole","2","1950","50"};
 
     colorGenerator(10);
 
-int memorySize = 2000;
 for(int i=0;i<segments.size();i++){
 
-    if(segments[i][0]=="hole"){
+    if(segments[i][1]=="Hole"){
         painter.setPen(QPen(Qt::blue, 3, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
         painter.setBrush(QBrush(Qt::black, Qt::BDiagPattern	));
-        painter.drawRect(QRect(0, height()*  segments[i][2].toInt() /memorySize,width(),height()*  (segments[i][3].toInt())/memorySize));
-        painter.drawText(QRect(0, height()*  segments[i][2].toInt() /memorySize,width(),height()*  (segments[i][3].toInt())/memorySize),Qt::AlignCenter,"Hole");
+        painter.drawRect(QRect(0, height()*  segments[i][2].toInt() /memorySizeInt,width(),height()*  (segments[i][3].toInt())/memorySizeInt));
+        painter.drawText(QRect(0, height()*  segments[i][2].toInt() /memorySizeInt,width(),height()*  (segments[i][3].toInt())/memorySizeInt),Qt::AlignCenter,"Hole");
+    }
+    else if(segments[i][1]=="NA"){
+        painter.setPen(QPen(Qt::blue, 3, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+        painter.setBrush(QBrush(Qt::gray, Qt::SolidPattern	));
+        painter.drawRect(QRect(0, height()*  segments[i][2].toInt() /memorySizeInt,width(),height()*  (segments[i][3].toInt())/memorySizeInt));
+        painter.drawText(QRect(0, height()*  segments[i][2].toInt() /memorySizeInt,width(),height()*  (segments[i][3].toInt())/memorySizeInt),Qt::AlignCenter,"NA");
     }
     else{
        painter.setPen(QPen(Qt::blue, 3, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
        painter.setBrush(QBrush(getAndAssignColor(segments[i][0].toInt()), Qt::SolidPattern));
-       painter.drawRect(QRect(0, height()*  segments[i][2].toInt() /memorySize,width(),height()*  (segments[i][3].toInt())/memorySize));
-       painter.drawText(QRect(0, height()*  segments[i][2].toInt() /memorySize,width(),height()*  (segments[i][3].toInt())/memorySize),Qt::AlignCenter,"Process:"+segments[i][0]+" Segment:"+segments[i][1]);
+       painter.drawRect(QRect(0, height()*  segments[i][2].toInt() /memorySizeInt,width(),height()*  (segments[i][3].toInt())/memorySizeInt));
+       painter.drawText(QRect(0, height()*  segments[i][2].toInt() /memorySizeInt,width(),height()*  (segments[i][3].toInt())/memorySizeInt),Qt::AlignCenter,"Process:"+segments[i][0]+" Segment:"+segments[i][1]);
     }
-    painter.drawText(10,height()*segments[i][2].toInt()/memorySize + 21,segments[i][2]);
+    painter.drawText(10,height()*segments[i][2].toInt()/memorySizeInt + 21,segments[i][2]);
     //painter.drawText(20,segments[i][2].toInt()+segments[i][3].toInt()-50,QString(segments[i][2].toInt()+segments[i][3].toInt()));
 
 }
@@ -223,4 +217,96 @@ for(int i=0;i<segments.size();i++){
     painter.setBrush(Qt::NoBrush);
     painter.drawRect(QRect(0, 0, width() - 1, height() - 1));
 }
+
+
 //! [13]
+void RenderArea::draw(){
+    QRect rect(0, 0, width(), height()/4);
+    QPainter painter(this);
+    painter.setPen(QPen(Qt::blue, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+    painter.setBrush(QBrush(Qt::green, Qt::BDiagPattern	));
+    QFont font = painter.font();
+    font.setPixelSize(22);
+    painter.setFont(font);
+    //painter.drawRect(rect);
+
+    colorGenerator(10);
+
+for(int i=0;i<segments.size();i++){
+
+    if(segments[i][0]=="hole"){
+        painter.setPen(QPen(Qt::blue, 3, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+        painter.setBrush(QBrush(Qt::black, Qt::BDiagPattern	));
+        painter.drawRect(QRect(0, height()*  segments[i][2].toInt() /memorySizeInt,width(),height()*  (segments[i][3].toInt())/memorySizeInt));
+        painter.drawText(QRect(0, height()*  segments[i][2].toInt() /memorySizeInt,width(),height()*  (segments[i][3].toInt())/memorySizeInt),Qt::AlignCenter,"Hole");
+    }
+    else{
+       painter.setPen(QPen(Qt::blue, 3, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+       painter.setBrush(QBrush(getAndAssignColor(segments[i][0].toInt()), Qt::SolidPattern));
+       painter.drawRect(QRect(0, height()*  segments[i][2].toInt() /memorySizeInt,width(),height()*  (segments[i][3].toInt())/memorySizeInt));
+       painter.drawText(QRect(0, height()*  segments[i][2].toInt() /memorySizeInt,width(),height()*  (segments[i][3].toInt())/memorySizeInt),Qt::AlignCenter,"Process:"+segments[i][0]+" Segment:"+segments[i][1]);
+    }
+    painter.drawText(10,height()*segments[i][2].toInt()/memorySizeInt + 21,segments[i][2]);
+    //painter.drawText(20,segments[i][2].toInt()+segments[i][3].toInt()-50,QString(segments[i][2].toInt()+segments[i][3].toInt()));
+
+}
+
+
+
+    painter.setPen(QPen(Qt::blue, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+    painter.setBrush(QBrush(Qt::red, Qt::SolidPattern));
+    //painter.drawRect(QRect(0,height()/4,width(),height()/2));
+
+    pen = QPen(Qt::blue, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin);
+    brush = QBrush(Qt::yellow, Qt::SolidPattern);
+
+    painter.setPen(pen);
+    painter.setBrush(brush);
+
+    //painter.drawRect(QRect(0,height()/2,width(),height()*2/4));
+
+    qDebug() <<height() ;
+
+
+
+//    for (int x = 0; x < width(); x += 80) {
+//        for (int y = 0; y < height(); y += 60) {
+//            painter.save();
+//            painter.translate(x, y);
+////! [10] //! [11]
+//            if (transformed) {
+//                painter.translate(50, 50);
+//                painter.rotate(60.0);
+//                painter.scale(0.6, 0.9);
+//                painter.translate(-50, -50);
+//            }
+////! [11]
+
+////! [12]
+//            switch (shape) {
+//            case Line:
+//                painter.drawLine(rect.bottomLeft(), rect.topRight());
+//                break;
+//            case Rect:
+//                painter.drawRect(rect);
+//                break;
+//            case Path:
+//                painter.drawPath(path);
+//                break;
+//            case Text:
+//                painter.drawText(rect,
+//                                 Qt::AlignCenter,
+//                                 tr("Qt by\nThe Qt Company"));
+//                break;
+//            case Pixmap:
+//                painter.drawPixmap(10, 10, pixmap);
+//            }
+////! [12] //! [13]
+//        }
+//    }
+
+    painter.setRenderHint(QPainter::Antialiasing, false);
+    painter.setPen(palette().dark().color());
+    painter.setBrush(Qt::NoBrush);
+    painter.drawRect(QRect(0, 0, width() - 1, height() - 1));
+}
