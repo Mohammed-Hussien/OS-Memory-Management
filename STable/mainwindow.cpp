@@ -152,6 +152,8 @@ void MainWindow::draw(){
     setWindowIcon(QIcon(":images/myappico.ico"));
     setWindowTitle("Memory Manager");
     resize(QDesktopWidget().availableGeometry(this).size() * 0.75);
+    segments.clear();
+    renderArea->update();
     colorGenerator(10);
 
 }
@@ -166,8 +168,6 @@ MainWindow::~MainWindow(){
 void MainWindow::on_holesNumber_Changed(const QString &text){
 
     holeTable->setRowCount(text.toInt());
-
-
 }
 
 void MainWindow::on_addProcess_clicked(){
@@ -284,20 +284,26 @@ void MainWindow::submitTables(){
 }
 
 void MainWindow::on_memorySize_Changed(const QString &text){
-    QString temp = text;
-    int pos =0;
-    QIntValidator v(1,100000000000);
 
-    if(v.validate(temp,pos) == QValidator::Invalid || v.validate(temp,pos) == QValidator::Intermediate){
-        QMessageBox messageBox;
-        messageBox.critical(0,"Error","Please enter a valid Integer Number");
-        memorySize->setText("1");
-    }
-    initializeMemory(text.toStdString());
-    memorySizeInt = text.toInt();
 }
 
 void MainWindow::on_drawHoles_clicked(){
+
+
+        QString temp = memorySize->text();
+        int pos =0;
+        QIntValidator v(1,100000000000);
+
+        if(v.validate(temp,pos) == QValidator::Invalid || v.validate(temp,pos) == QValidator::Intermediate){
+            QMessageBox messageBox;
+            messageBox.critical(0,"Error","Please enter a valid Integer Number");
+            memorySize->setText("1");
+        }
+        initializeMemory(memorySize->text().toStdString());
+        memorySizeInt = memorySize->text().toInt();
+
+
+
         holeTableData.clear();
         holeTableData.resize(holeTable->rowCount());
         for(int i=0;i<holeTableData.size();i++){
@@ -356,7 +362,8 @@ void MainWindow::on_deallocateProcess_clicked(){
         segments = strToQStr(temp);
         renderArea->update();
     }
-
+    processViewSelect->removeItem(processViewSelect->findText(processSelect->currentText()));
+    processViewButton->setText("View Process "+ processViewSelect->currentText());
     processSelect->removeItem(processSelect->currentIndex());
     deallocateProcess->setText("Deallocate Process " +processSelect->currentText());
     qDebug() << processSelect->currentText();
@@ -379,10 +386,16 @@ void MainWindow::on_addToMemory_clicked(){
         segments = strToQStr(temp);
         renderArea->update();
     }
+    if(notSize==0){
+        QMessageBox messageBox;
+        messageBox.critical(0,"Error","No Enough Space for Process Allocation");
+    }
     processViewSelect->addItem(segmentTable->item(0,0)->text());
     if(processViewButton->text()=="View Process"){
         processViewButton->setText("View Process "+segmentTable->item(0,0)->text());
     }
+
+
     segmentTableData.clear();
     segmentTable->setRowCount(0);
 }
@@ -396,8 +409,21 @@ void MainWindow::on_processViewButton_clicked(){
 
 void MainWindow::on_reset_clicked(){
 
-    qApp->quit();
-    QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+    segmentTable->setRowCount(0);
+    holeTable->setRowCount(0);
+    myTable->setRowCount(0);
+    holeTableData.clear();
+    segmentTableData.clear();
+    processSelect->clear();
+    processViewSelect->clear();
+    processViewButton->setText("View Process");
+    processID->setText("");
+    memorySize->setText("");
+    segments.clear();
+    memory.clear();
+    notSize=0;
+    notSizeProcess.clear();
+    renderArea->update();
 /*
     myTable->setRowCount(0);
     myTable->setColumnCount(0);

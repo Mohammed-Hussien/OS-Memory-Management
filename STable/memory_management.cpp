@@ -199,11 +199,13 @@ std::vector<std::vector<std::string>> showProcess(std::vector<std::vector<std::s
     for (auto& i : segments)
     {
         if (i[0] == process_name)
-        {
-            result.resize(result.size() + 1);
-            result[result.size() - 1].push_back(i[0]);
-            result[result.size() - 1].push_back(i[1]);
-        }
+                {
+                    result.resize(result.size() + 1);
+                    result[result.size() - 1].push_back(i[0]);
+                    result[result.size() - 1].push_back(i[1]);
+                    result[result.size() - 1].push_back(i[2]);
+                    result[result.size() - 1].push_back(i[3]);
+                }
     }
     return result;
 }

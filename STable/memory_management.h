@@ -8,7 +8,6 @@ using namespace std;
 extern int notSize;
 extern vector<vector<string>>memory;
 extern vector<vector<string>>notSizeProcess;
-extern vector<vector<string>>notSizeProcess;
 
 vector<vector<string>> painting();
 
